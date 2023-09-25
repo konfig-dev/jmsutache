@@ -871,6 +871,13 @@ public class Mustache {
                     indent += " ";
                 }
                 for (int i = numNewlines + 1; i < lines.length; i++) {
+                    // if line already has indentation then skip
+                    // check indentation by seeing if line starts with indent
+                    // and also next character is not a space
+                    if (lines[i].startsWith(indent) && lines[i].charAt(offset) != ' ') {
+                        continue;
+                    }
+
                     lines[i] = indent + lines[i];
                 }
                 // now we need to re-write the buffer
