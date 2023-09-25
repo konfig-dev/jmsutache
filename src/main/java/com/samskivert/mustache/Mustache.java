@@ -902,15 +902,26 @@ public class Mustache {
             }
 
             Template.Segment[] innerSegs = getTemplate()._segs;
-            // determine if last segment is a SectionSegment with a newline at the end of its section
-            boolean lastSegIsSection = innerSegs[innerSegs.length-1] instanceof SectionSegment;
-            SectionSegment lastSection = lastSegIsSection ? (SectionSegment)innerSegs[innerSegs.length-1] : null;
-            boolean lastSegInSectionIsStringSegment = lastSegIsSection && lastSection._segs[lastSection._segs.length-1] instanceof StringSegment;
-            StringSegment lastStringSegment = lastSegInSectionIsStringSegment ? (StringSegment)lastSection._segs[lastSection._segs.length-1] : null;
-            boolean lastStringSegmentIsNewline = lastSegInSectionIsStringSegment && lastStringSegment._text.endsWith("\n");
-            if (lastStringSegmentIsNewline) {
-                // if so, move pointer back for out to before the newline
-                ((StringWriter) out).getBuffer().setLength(((StringWriter) out).getBuffer().length() - 1);
+
+            // determine if the last segment is a SectionSegment
+            boolean lastSegmentIsSection = innerSegs[innerSegs.length-1] instanceof SectionSegment;
+            if (lastSegmentIsSection) {
+                // recursively determine if last segment is a SectionSegment with a newline at the end of its section
+                while (!(innerSegs[innerSegs.length-1] instanceof StringSegment)) {
+                    if (innerSegs[innerSegs.length-1] instanceof SectionSegment) {
+                        innerSegs = ((SectionSegment)innerSegs[innerSegs.length-1])._segs;
+                    } else if (innerSegs[innerSegs.length-1] instanceof IncludedTemplateSegment) {
+                        innerSegs = ((IncludedTemplateSegment)innerSegs[innerSegs.length-1]).getTemplate()._segs;
+                    } else {
+                        break;
+                    }
+                }
+                if (innerSegs[innerSegs.length-1] instanceof StringSegment) {
+                    StringSegment lastStringSegment = (StringSegment) innerSegs[innerSegs.length - 1];
+                    if (lastStringSegment._text.endsWith("\n")) {
+                        ((StringWriter) out).getBuffer().setLength(((StringWriter) out).getBuffer().length() - 1);
+                    }
+                }
             }
         }
 
