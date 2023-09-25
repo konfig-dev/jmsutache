@@ -412,10 +412,6 @@ public class Mustache {
                     block.trimLastBlank();
                     if (nseg != null) segs[ii+1] = next.trimLeadBlank();
                 }
-            } else if (seg instanceof IncludedTemplateSegment) {
-                if (nextBlank && nseg instanceof StringSegment && ((StringSegment)nseg)._text.startsWith("\n")) {
-                    segs[ii+1] = next.trimLeadBlank();
-                }
             }
             // potentially trim around non-printing (comments/delims) segments
             else if (seg instanceof FauxSegment) {
@@ -903,6 +899,18 @@ public class Mustache {
                 for (int i = 0; i < numEndingNewlines; i++) {
                     ((StringWriter) out).write("\n");
                 }
+            }
+
+            Template.Segment[] innerSegs = getTemplate()._segs;
+            // determine if last segment is a SectionSegment with a newline at the end of its section
+            boolean lastSegIsSection = innerSegs[innerSegs.length-1] instanceof SectionSegment;
+            SectionSegment lastSection = lastSegIsSection ? (SectionSegment)innerSegs[innerSegs.length-1] : null;
+            boolean lastSegInSectionIsStringSegment = lastSegIsSection && lastSection._segs[lastSection._segs.length-1] instanceof StringSegment;
+            StringSegment lastStringSegment = lastSegInSectionIsStringSegment ? (StringSegment)lastSection._segs[lastSection._segs.length-1] : null;
+            boolean lastStringSegmentIsNewline = lastSegInSectionIsStringSegment && lastStringSegment._text.endsWith("\n");
+            if (lastStringSegmentIsNewline) {
+                // if so, move pointer back for out to before the newline
+                ((StringWriter) out).getBuffer().setLength(((StringWriter) out).getBuffer().length() - 1);
             }
         }
 
