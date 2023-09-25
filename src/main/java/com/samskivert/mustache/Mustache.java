@@ -905,11 +905,21 @@ public class Mustache {
 
             // determine if the last segment is a SectionSegment
             boolean lastSegmentIsSection = innerSegs[innerSegs.length-1] instanceof SectionSegment;
+
             if (lastSegmentIsSection) {
                 // recursively determine if last segment is a SectionSegment with a newline at the end of its section
                 while (!(innerSegs[innerSegs.length-1] instanceof StringSegment)) {
                     if (innerSegs[innerSegs.length-1] instanceof SectionSegment) {
                         innerSegs = ((SectionSegment)innerSegs[innerSegs.length-1])._segs;
+                        // if the first and last segments are empty string segments
+                        // remove first and last elements from innerSegs since they are virtual "blank lines"
+                        if (innerSegs.length >= 3 && innerSegs[0] instanceof StringSegment && innerSegs[innerSegs.length-1] instanceof StringSegment) {
+                            StringSegment firstStringSegment = (StringSegment) innerSegs[0];
+                            StringSegment lastStringSegment = (StringSegment) innerSegs[innerSegs.length - 1];
+                            if (firstStringSegment._text.equals("") && lastStringSegment._text.equals("")) {
+                                innerSegs = Arrays.copyOfRange(innerSegs, 1, innerSegs.length - 1);
+                            }
+                        }
                     } else if (innerSegs[innerSegs.length-1] instanceof IncludedTemplateSegment) {
                         innerSegs = ((IncludedTemplateSegment)innerSegs[innerSegs.length-1]).getTemplate()._segs;
                     } else {
