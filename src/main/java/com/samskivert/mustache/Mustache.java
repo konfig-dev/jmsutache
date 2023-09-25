@@ -4,10 +4,7 @@
 
 package com.samskivert.mustache;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -828,8 +825,70 @@ public class Mustache {
         @Override public void execute (Template tmpl, Template.Context ctx, Writer out) {
             // we must take care to preserve our context rather than creating a new one, which
             // would happen if we just called execute() with ctx.data
+
+            // compute the number of characters past the last new line that have been written so far
+            String buffer = ((StringWriter) out).getBuffer().toString();
+            int lastNewline = buffer.lastIndexOf('\n');
+            int offset = (lastNewline == -1) ? buffer.length() : buffer.length() - lastNewline - 1;
+
+            // also compute the number of newlines that have been written so far so we
+            // only modify indentation for written first lines from the included template
+            int numNewlines = 0;
+            for (int i = 0; i < buffer.length(); i++) {
+                if (buffer.charAt(i) == '\n') {
+                    numNewlines++;
+                }
+            }
+
             getTemplate().executeSegs(ctx, out);
+
+            String newBuffer = ((StringWriter) out).getBuffer().toString();
+
+            // now we need to modify the indentation of the included template
+            // we do this by splitting the buffer into lines and then re-indenting
+            // each line based on the indentation of the first line. To do this we
+            // use offset and numNewlines to find the first line of the included template
+            // and then use offset to indent the rest of the lines. Make sure to append any newlines
+            // from the end of the included template
+            String[] lines = newBuffer.split("\n");
+            if (lines.length > 1) {
+                // create indentation string of whitespace using offset
+                String indent = "";
+                for (int i = 0; i < offset; i++) {
+                    indent += " ";
+                }
+                for (int i = numNewlines + 1; i < lines.length; i++) {
+                    lines[i] = indent + lines[i];
+                }
+                // now we need to re-write the buffer
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < lines.length; i++) {
+                    sb.append(lines[i]);
+                    if (i < lines.length - 1) {
+                        sb.append("\n");
+                    }
+                }
+                buffer = sb.toString();
+                ((StringWriter) out).getBuffer().setLength(0);
+                ((StringWriter) out).write(buffer);
+
+                // append any newlines from the end of the included template
+                // 1. count number of ending newlines in newBuffer
+                // 2. append that many newlines to out
+                int numEndingNewlines = 0;
+                for (int i = newBuffer.length() - 1; i >= 0; i--) {
+                    if (newBuffer.charAt(i) == '\n') {
+                        numEndingNewlines++;
+                    } else {
+                        break;
+                    }
+                }
+                for (int i = 0; i < numEndingNewlines; i++) {
+                    ((StringWriter) out).write("\n");
+                }
+            }
         }
+
         @Override public void decompile (Delims delims, StringBuilder into) {
             delims.addTag('>', _name, into);
         }

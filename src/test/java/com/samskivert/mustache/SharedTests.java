@@ -243,6 +243,41 @@ public abstract class SharedTests extends GWTTestCase
                                             context("thing_name", "baz"))));
     }
 
+    @Test public void testPartialNewlinesArePreserved() {
+        test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
+            public Reader getTemplate (String name) {
+                if (name.equals("foo")) {
+                    return new StringReader("inside:{{bar}}\nsecondline\n\n");
+                } else {
+                    return new StringReader("nonfoo");
+                }
+            }
+        }), "foo\n  inside:foo\n  secondline\n\n nonfoo foo", "{{bar}}\n  {{>foo}} {{>baz}} {{bar}}", context("bar", "foo"));
+    }
+
+    @Test public void testPartialNewlinesArePreservedTwo() {
+        test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
+            public Reader getTemplate (String name) {
+                if (name.equals("foo")) {
+                    return new StringReader("inside:{{bar}}\nsecondline\n");
+                } else {
+                    return new StringReader("nonfoo");
+                }
+            }
+        }), "foo\n  inside:foo\n  secondline\n nonfoo foo", "{{bar}}\n  {{>foo}} {{>baz}} {{bar}}", context("bar", "foo"));
+    }
+    @Test public void testPartialIndentation() {
+        test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
+            public Reader getTemplate (String name) {
+                if (name.equals("foo")) {
+                    return new StringReader("inside:{{bar}}\nsecondline");
+                } else {
+                    return new StringReader("nonfoo");
+                }
+            }
+        }), "foo\n  inside:foo\n  secondline nonfoo foo", "{{bar}}\n  {{>foo}} {{>baz}} {{bar}}", context("bar", "foo"));
+    }
+
     @Test public void testRecursivePartial () {
         String template = "[{{name}}{{#properties}}, {{> schema.mustache}}{{/properties}}]";
         test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
