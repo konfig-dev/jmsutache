@@ -874,7 +874,7 @@ public class Mustache {
                     // if line already has indentation then skip
                     // check indentation by seeing if line starts with indent
                     // and also next character is not a space
-                    if (lines[i].startsWith(indent) && lines[i].charAt(offset) != ' ') {
+                    if (lines[i].length() > offset && lines[i].startsWith(indent) && lines[i].charAt(offset) != ' ') {
                         continue;
                     }
 

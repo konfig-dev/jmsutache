@@ -263,6 +263,19 @@ public abstract class SharedTests extends GWTTestCase
                 context());
     }
 
+    @Test public void testPartialNoIndentationDoesNotThrowOutOfBounds () {
+        test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
+                    public Reader getTemplate (String name) {
+                        if (name.equals("partial")) {
+                            return new StringReader("hello\n\nworld");
+                        } else {
+                            return new StringReader("n/a");
+                        }
+                    }
+                }), "hello\n\nworld", "{{>partial}}",
+                context());
+    }
+
     @Test public void testPartialEndingNewline() {
         test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
             public Reader getTemplate (String name) {
