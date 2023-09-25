@@ -412,6 +412,10 @@ public class Mustache {
                     block.trimLastBlank();
                     if (nseg != null) segs[ii+1] = next.trimLeadBlank();
                 }
+            } else if (seg instanceof IncludedTemplateSegment) {
+                if (nextBlank && nseg instanceof StringSegment && ((StringSegment)nseg)._text.startsWith("\n")) {
+                    segs[ii+1] = next.trimLeadBlank();
+                }
             }
             // potentially trim around non-printing (comments/delims) segments
             else if (seg instanceof FauxSegment) {
@@ -799,6 +803,19 @@ public class Mustache {
                 _leadBlank + "/" + _trailBlank;
         }
 
+        /**
+         * Returns the index of the first non-whitespace character in {@code text}, or -1 if the
+         * string is all whitespace. If {@code leading} is true, the search is performed from the
+         * beginning of the string, otherwise from the end. If {@code first} is true, then a
+         * totally blank string (but which lacks a newline) is considered to be all leading or
+         * trailing whitespace.
+         *
+         * @param text the text to search.
+         * @param leading if true, search from the beginning of the string, otherwise from the end.
+         * @param first if true, a totally blank string (but which lacks a newline) is considered
+         * @return the index of the first non-whitespace character, or -1 if the string is all
+         * whitespace.
+         */
         private static int blankPos (String text, boolean leading, boolean first) {
             int len = text.length();
             for (int ii = leading ? 0 : len-1, ll = leading ? len : -1, dd = leading ? 1 : -1;

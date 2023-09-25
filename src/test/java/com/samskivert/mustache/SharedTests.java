@@ -80,6 +80,11 @@ public abstract class SharedTests extends GWTTestCase
              context("foo", new Object[] { context("bar", "baz"), context("bar", "bif") }));
     }
 
+    @Test public void testArrayNewlines () {
+        test("(\nbaz\nbif\n)", "(\n{{#foo}}\n{{bar}}\n{{/foo}}\n)",
+                context("foo", new Object[] { context("bar", "baz"), context("bar", "bif") }));
+    }
+
     @Test public void testArrayIndexSection () {
         test("baz", "{{#foo.0}}{{bar}}{{/foo.0}}",
             context("foo", new Object[] {
@@ -241,6 +246,18 @@ public abstract class SharedTests extends GWTTestCase
             context("name", "foo",
                     "things", Arrays.asList(context("thing_name", "bar"),
                                             context("thing_name", "baz"))));
+    }
+
+    @Test public void testPartialEndingNewline() {
+        test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
+            public Reader getTemplate (String name) {
+                if (name.equals("foo")) {
+                    return new StringReader("{{#bar}}\n  {{.}}\n{{/bar}}");
+                } else {
+                    return new StringReader("N/A");
+                }
+            }
+        }), "(\n  1\n  2\n)", "(\n{{>foo}}\n)", context("bar", List.of(1, 2)));
     }
 
     @Test public void testPartialNewlinesArePreserved() {
