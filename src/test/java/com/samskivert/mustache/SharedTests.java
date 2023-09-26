@@ -276,6 +276,21 @@ public abstract class SharedTests extends GWTTestCase
                 context());
     }
 
+    @Test public void testInnerPartialWithIndentation() {
+        test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
+                    public Reader getTemplate (String name) {
+                        if (name.equals("one")) {
+                            return new StringReader("{{>two}}\n1");
+                        } else if (name.equals("two")) {
+                            return new StringReader("  2\n  3");
+                        } else {
+                            return new StringReader("n/a");
+                        }
+                    }
+                }), "    2\n    3\n  1", "  {{>one}}",
+                context());
+    }
+
     @Test public void testPartialEndingNewline() {
         test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
             public Reader getTemplate (String name) {
