@@ -339,6 +339,18 @@ public abstract class SharedTests extends GWTTestCase
         }), "(\n1\n2\n)", "(\n{{>foo}}\n)", context("bar", new Object[]{context("foo", 1), context("foo", 2)}));
     }
 
+    @Test public void testPartialWithEmptyOutput() {
+        test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
+            public Reader getTemplate (String name) {
+                if (name.equals("foo")) {
+                    return new StringReader("{{#bar}}\nhello\n{{/bar}}");
+                } else {
+                    return new StringReader("N/A");
+                }
+            }
+        }), "", "{{>foo}}", context("bar", false));
+    }
+
     @Test public void testPartialEndingNewlineWithoutList() {
         test(Mustache.compiler().withLoader(new Mustache.TemplateLoader() {
             public Reader getTemplate (String name) {

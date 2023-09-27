@@ -937,7 +937,7 @@ public class Mustache {
                 }
                 if (innerSegs[innerSegs.length-1] instanceof StringSegment) {
                     StringSegment lastStringSegment = (StringSegment) innerSegs[innerSegs.length - 1];
-                    if (lastStringSegment._text.endsWith("\n")) {
+                    if (lastStringSegment._text.endsWith("\n") && ((StringWriter) out).getBuffer().length() > 0) {
                         ((StringWriter) out).getBuffer().setLength(((StringWriter) out).getBuffer().length() - 1);
                     }
                 }
