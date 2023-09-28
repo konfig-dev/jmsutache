@@ -224,6 +224,33 @@ public class Template {
             return ctx.index;
         }
 
+        if (name.startsWith(PARENT_NAME)) {
+            // find the number of "../" strings are in the name and walk up that many parent
+            // contexts. Do this by counting the number of "../" strings are at the beginning of name.
+            int count = 0;
+            String curr  = name;
+            while (curr.startsWith(PARENT_NAME)) {
+                count++;
+                curr = curr.substring(PARENT_NAME.length());
+            }
+            while (count > 0 && ctx != null) {
+                ctx = ctx.parent;
+                if (ctx == null) {
+                    throw new MustacheException.Context(
+                        "Invalid name '" + name + "' on line " + line +
+                        ". Tried to reference parent context " + count + " levels up, but no such " +
+                        "context exists.", name, line);
+                }
+                count--;
+            }
+            // if we have a name left, resolve it in the context we found
+            if (!curr.isEmpty()) {
+                return getValueIn(ctx.data, curr, line);
+            } else {
+                return ctx.data;
+            }
+        }
+
         // if we're in standards mode, restrict ourselves to simple direct resolution (no compound
         // keys, no resolving values in parent contexts)
         if (_compiler.standardsMode) {
@@ -438,6 +465,8 @@ public class Template {
     }
 
     protected static final String DOT_NAME = ".";
+
+    protected static final String PARENT_NAME = "../";
     protected static final String THIS_NAME = "this";
     protected static final String FIRST_NAME = "-first";
     protected static final String LAST_NAME = "-last";

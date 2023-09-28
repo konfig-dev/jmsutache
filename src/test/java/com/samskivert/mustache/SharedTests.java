@@ -195,6 +195,12 @@ public abstract class SharedTests extends GWTTestCase
         test(Mustache.compiler(), "test", "{{#foo}}test{{/foo}}", context("foo", ""));
     }
 
+    @Test public void testUsingParentContext () {
+        Object ctx = context("foo", context("bar", "1"), "bar", "2");
+        Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
+        test(compiler, "2",     "{{#foo}}{{../bar}}{{/foo}}", ctx);
+    }
+
     @Test public void testSectionWithFalseyEmptyString () {
         Object ctx = context("foo", "", "bar", "nonempty");
         // test normal sections with falsey empty string
