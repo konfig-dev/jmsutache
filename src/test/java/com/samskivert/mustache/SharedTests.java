@@ -201,6 +201,15 @@ public abstract class SharedTests extends GWTTestCase
         test(compiler, "2",     "{{#foo}}{{../bar}}{{/foo}}", ctx);
     }
 
+    @Test public void testDebug() {
+        Object ctx = context("foo", context("foo", context("bar", 3), "bar", 2, "list", new Object[]{context("foo", "bar")}), "bar", 1);
+        Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
+        test(compiler, ".bar: 1\n" +
+                ".foo.bar: 2\n" +
+                ".foo.foo.bar: 3\n" +
+                ".foo.list.[0].foo: \"bar\"",     "{{{?}}}", ctx);
+    }
+
     @Test public void testUsingParentContextNested () {
         Object ctx = context("foo", context("foo", context("bar", 3), "bar", 2), "bar", 1);
         Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
