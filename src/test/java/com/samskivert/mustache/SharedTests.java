@@ -201,13 +201,32 @@ public abstract class SharedTests extends GWTTestCase
         test(compiler, "2",     "{{#foo}}{{../bar}}{{/foo}}", ctx);
     }
 
+    class TestClass {
+        public String a;
+        public List<String> b;
+        public TestClass c;
+
+        public TestClass(String a, List<String> b, TestClass c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
+    @Test public void testDebugNativeClass() {
+        Object ctx = context("foo", new TestClass("1", Arrays.asList("2", "3"), new TestClass("4", Arrays.asList("5", "6"), null)));
+        Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
+        test(compiler, "foo.a: \"1\"\\nfoo.b.[0]: \"2\"\\nfoo.b.[1]: \"3\"\\nfoo.c.a: \"4\"\\nfoo.c.b.[0]: " +
+                "\"5\"\\nfoo.c.b.[1]: \"6\"\\nfoo.c.c: null",     "{{{?}}}", ctx);
+    }
+
     @Test public void testDebug() {
         Object ctx = context("foo", context("foo", context("bar", 3), "bar", 2, "list", new Object[]{context("foo", "bar")}), "bar", 1);
         Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
-        test(compiler, ".bar: 1\n" +
-                ".foo.bar: 2\n" +
-                ".foo.foo.bar: 3\n" +
-                ".foo.list.[0].foo: \"bar\"",     "{{{?}}}", ctx);
+        test(compiler, "bar: 1\n" +
+                "foo.bar: 2\n" +
+                "foo.foo.bar: 3\n" +
+                "foo.list.[0].foo: \"bar\"",     "{{{?}}}", ctx);
     }
 
     @Test public void testUsingParentContextNested () {
