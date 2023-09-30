@@ -213,6 +213,13 @@ public abstract class SharedTests extends GWTTestCase
         }
     }
 
+    @Test public void testDebugParent() {
+        Object ctx = context("foo", new TestClass("1", Arrays.asList("2", "3"), new TestClass("4", Arrays.asList("5", "6"), null)));
+        Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
+        test(compiler, "foo.a: \"1\"\\nfoo.b.[0]: \"2\"\\nfoo.b.[1]: \"3\"\\nfoo.c.a: \"4\"\\nfoo.c.b.[0]: " +
+                "\"5\"\\nfoo.c.b.[1]: \"6\"\\nfoo.c.c: null",     "{{#foo}}{{{../?}}}{{/foo}}", ctx);
+    }
+
     @Test public void testDebugNativeClass() {
         Object ctx = context("foo", new TestClass("1", Arrays.asList("2", "3"), new TestClass("4", Arrays.asList("5", "6"), null)));
         Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
