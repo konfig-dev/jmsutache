@@ -244,17 +244,17 @@ public class Template {
         return obj == null || obj instanceof String || obj instanceof Number || obj instanceof Boolean || obj instanceof Character;
     }
 
-    private static void generateDebugReport(Object data, ArrayList<String> lines, ArrayList<String> prefix, IdentityHashMap<Object, Boolean> seen) {
+    private static void generateDebugReport(Object data, ArrayList<String> lines, ArrayList<String> prefix, IdentityHashMap<Object, String> seen) {
         // clone prefix and reassign prefix variable
         String label = String.join(".", prefix);
 
         if (isSimpleType(data)) {
             // For simple types, just continue processing without adding to seen
         } else if (seen.containsKey(data)) {
-            lines.add(label + ": <circular reference>");
+            lines.add(label + ": @" + seen.get(data));
             return;
         } else {
-            seen.put(data, Boolean.TRUE);
+            seen.put(data, label);
         }
 
         if (data == null) {
