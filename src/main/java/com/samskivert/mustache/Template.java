@@ -7,6 +7,7 @@ package com.samskivert.mustache;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -277,6 +278,8 @@ public class Template {
                 index++;
             }
         } else if (isBoxedPrimitiveOrString(data)) {
+            lines.add(label + ": " + generateDebugString(data));
+        } else if (data instanceof BigDecimal) {
             lines.add(label + ": " + generateDebugString(data));
         } else if (data.getClass().getFields().length > 0) {
             // iterate over all fields and recurse

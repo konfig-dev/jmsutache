@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.google.gwt.junit.client.GWTTestCase;
@@ -211,6 +212,12 @@ public abstract class SharedTests extends GWTTestCase
             this.b = b;
             this.c = c;
         }
+    }
+
+    @Test public void testDebugBigDecimal() {
+        Object ctx = context("foo", new BigDecimal(0));
+        Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);
+        test(compiler, "foo: 0",     "{{{?}}}", ctx);
     }
 
     @Test public void testDebugParent() {
