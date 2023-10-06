@@ -214,6 +214,16 @@ public abstract class SharedTests extends GWTTestCase
         }
     }
 
+    @Test public void testDebugCircularReference() {
+        // create hashmap with circular reference
+        Map<String, Object> a = new HashMap<String, Object>();
+        Map<String, Object> b = new HashMap<String, Object>();
+        a.put("b", b);
+        b.put("a", a);
+        Mustache.Compiler compiler = Mustache.compiler();
+        test(compiler, "b.a: <circular reference>",     "{{{?}}}", a);
+    }
+
     @Test public void testDebugBigDecimal() {
         Object ctx = context("foo", new BigDecimal(0));
         Mustache.Compiler compiler = Mustache.compiler().emptyStringIsFalse(true);

@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -239,13 +236,20 @@ public class Template {
     static String generateDebugReport(Object data) {
         ArrayList<String> lines = new ArrayList<>();
         ArrayList<String> prefix = new ArrayList<>();
-        generateDebugReport(data, lines, prefix);
+        generateDebugReport(data, lines, prefix, new IdentityHashMap<>());
         return String.join("\n", lines);
     }
 
-    private static void generateDebugReport(Object data, ArrayList<String> lines, ArrayList<String> prefix) {
+    private static void generateDebugReport(Object data, ArrayList<String> lines, ArrayList<String> prefix, IdentityHashMap<Object, Boolean> seen) {
         // clone prefix and reassign prefix variable
         String label = String.join(".", prefix);
+
+        if (seen.containsKey(data)) {
+            lines.add(label + ": <circular reference>");
+            return;
+        }
+        seen.put(data, true);
+
         if (data == null) {
             lines.add(label + ": null");
         } else if (data instanceof Map) {
@@ -257,7 +261,7 @@ public class Template {
             for (String key : keys) {
                 ArrayList<String> clone = new ArrayList<>(prefix);
                 clone.add(key);
-                generateDebugReport(map.get(key), lines, clone);
+                generateDebugReport(map.get(key), lines, clone, seen);
             }
         } else if (data instanceof Iterable) {
             Iterable<?> iterable = (Iterable<?>) data;
@@ -265,7 +269,7 @@ public class Template {
             for (Object item : iterable) {
                 ArrayList<String> clone = new ArrayList<>(prefix);
                 clone.add("[" + index + "]");
-                generateDebugReport(item, lines, clone);
+                generateDebugReport(item, lines, clone, seen);
                 index++;
             }
         } else if (data.getClass().isArray()) {
@@ -274,7 +278,7 @@ public class Template {
             for (Object item : array) {
                 ArrayList<String> clone = new ArrayList<>(prefix);
                 clone.add("[" + index + "]");
-                generateDebugReport(item, lines, clone);
+                generateDebugReport(item, lines, clone, seen);
                 index++;
             }
         } else if (isBoxedPrimitiveOrString(data)) {
@@ -287,7 +291,7 @@ public class Template {
                 ArrayList<String> clone = new ArrayList<>(prefix);
                 clone.add(field.getName());
                 try {
-                    generateDebugReport(field.get(data), lines, clone);
+                    generateDebugReport(field.get(data), lines, clone, seen);
                 } catch (IllegalAccessException e) {
                     // ignore
                 }
