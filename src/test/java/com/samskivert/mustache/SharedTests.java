@@ -214,6 +214,14 @@ public abstract class SharedTests extends GWTTestCase
         }
     }
 
+    @Test public void testDebugNull() {
+        Map<String, Object> a = new HashMap<String, Object>();
+        a.put("1", null);
+        a.put("2", null);
+        Mustache.Compiler compiler = Mustache.compiler();
+        test(compiler, "1: null\n2: null",     "{{{?}}}", a);
+    }
+
     @Test public void testDebugBooleans() {
         Map<String, Object> a = new HashMap<String, Object>();
         a.put("1", true);

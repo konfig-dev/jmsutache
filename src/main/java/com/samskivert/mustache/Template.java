@@ -241,7 +241,7 @@ public class Template {
     }
 
     private static boolean isSimpleType(Object obj) {
-        return obj instanceof String || obj instanceof Number || obj instanceof Boolean || obj instanceof Character;
+        return obj == null || obj instanceof String || obj instanceof Number || obj instanceof Boolean || obj instanceof Character;
     }
 
     private static void generateDebugReport(Object data, ArrayList<String> lines, ArrayList<String> prefix, IdentityHashMap<Object, Boolean> seen) {
