@@ -240,15 +240,22 @@ public class Template {
         return String.join("\n", lines);
     }
 
+    private static boolean isSimpleType(Object obj) {
+        return obj instanceof String || obj instanceof Number || obj instanceof Boolean || obj instanceof Character;
+    }
+
     private static void generateDebugReport(Object data, ArrayList<String> lines, ArrayList<String> prefix, IdentityHashMap<Object, Boolean> seen) {
         // clone prefix and reassign prefix variable
         String label = String.join(".", prefix);
 
-        if (seen.containsKey(data)) {
+        if (isSimpleType(data)) {
+            // For simple types, just continue processing without adding to seen
+        } else if (seen.containsKey(data)) {
             lines.add(label + ": <circular reference>");
             return;
+        } else {
+            seen.put(data, Boolean.TRUE);
         }
-        seen.put(data, true);
 
         if (data == null) {
             lines.add(label + ": null");

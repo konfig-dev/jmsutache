@@ -214,6 +214,14 @@ public abstract class SharedTests extends GWTTestCase
         }
     }
 
+    @Test public void testDebugBooleans() {
+        Map<String, Object> a = new HashMap<String, Object>();
+        a.put("1", true);
+        a.put("2", true);
+        Mustache.Compiler compiler = Mustache.compiler();
+        test(compiler, "1: true\n2: true",     "{{{?}}}", a);
+    }
+
     @Test public void testDebugCircularReference() {
         // create hashmap with circular reference
         Map<String, Object> a = new HashMap<String, Object>();
