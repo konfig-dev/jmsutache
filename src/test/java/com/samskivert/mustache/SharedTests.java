@@ -239,7 +239,7 @@ public abstract class SharedTests extends GWTTestCase
         a.put("b", b);
         a.put("c", b);
         Mustache.Compiler compiler = Mustache.compiler();
-        test(compiler, "a.hello: \"world\"\nb.hello: \"world\"\nc.hello: \"world\"",     "{{{?}}}", a);
+        test(compiler, "a.hello: \"world\"\nb: @a\nc: @a",     "{{{?}}}", a);
     }
 
     @Test public void testDebugCircularReference() {
@@ -249,7 +249,7 @@ public abstract class SharedTests extends GWTTestCase
         a.put("b", b);
         b.put("a", a);
         Mustache.Compiler compiler = Mustache.compiler();
-        test(compiler, "b.a: <circular reference>",     "{{{?}}}", a);
+        test(compiler, "b.a: @",     "{{{?}}}", a);
     }
 
     @Test public void testDebugBigDecimal() {

@@ -251,10 +251,9 @@ public class Template {
         if (isSimpleType(data)) {
             // For simple types, just continue processing without adding to seen
         } else if (seen.containsKey(data)) {
-            lines.add(label + ": <circular reference>");
+            lines.add(label + ": @" + seen.get(data));
             return;
         } else {
-            seen = new IdentityHashMap<>(seen);
             seen.put(data, label);
         }
 
